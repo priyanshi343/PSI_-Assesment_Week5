@@ -1,0 +1,133 @@
+Q1.
+Create table Employees as
+select * into Employees from Workers;
+
+Q2.
+CREATE TABLE temp_student
+AS
+SELECT * FROM student WHERE 'A'='B'
+
+Q3.
+
+(SELECT * from student ORDER BY id DESC LIMIT 10) ORDER BY id ASC
+
+SELECT MAX(salary), MIN(salary) FROM employee
+
+Q4.
+user_transaction template = '''
+select
+user_id
+, count(*) as num transactions
+, sum(amount) as total amount
+from
+ transactions
+where
+ user_id = 1234
+and transaction_date = '2022-03-02'
+group by
+user_id
+
+params = {
+*user id': 1234,
+"transaction date': '2022-03-02'
+}
+
+j=JinjaSq1(param_style='pyformat')
+query,bind_params=j.prepare_query(user_transaction_template, params)
+
+print(query)
+
+Q5.
+SELECT name FROM student where name LIKE ('P%') AND lastname LIKE('S%')
+
+Q6.SELECT * FROM Student ORDER BY id DESC LIMIT 1;
+
+Q7.
+CREATE TABLE Employees(
+    EmployeeID int NOT NULL PRIMARY KEY,
+    FirstName varchar(50) NOT NULL,
+    LastName varchar(50) NOT NULL,
+    ManagerID int NULL
+)
+
+INSERT INTO Employees VALUES(1,'ABC','Rai',NULL)
+INSERT INTO Employees VALUES(2,'Adi','XYZ',1)
+INSERT INTO Employees VALUES(3,'Priya','Jain',1)
+INSERT INTO Employees VALUES(4,'Rina','Sharma',3)
+INSERT INTO Employees VALUES(5,'Manu','Sen',5)
+
+select * from Employees;
+
+WITH
+    cteReports(EmpID, FirstName, LastName, MgrID, EmpLevel)
+    AS
+    (
+        SELECT EmployeeID, FirstName, LastName, ManagerID,1
+        From Employees
+        Where ManagerID is NULL
+        UNION ALL
+        SELECT e.EmployeeID, e.FirstName, e.LastName, e.ManagerID, r.EmpLevel + 1
+        FROM Employees e 
+            INNER JOIN cteReports r 
+            ON e.ManagerID = r.EmpID
+    )
+
+    SELECT 
+        FirstName + ' ' + LastName AS FullName,
+        EmpLevel,
+        (Select FirstName + ' ' + LastName AS FullName FROM Employees
+            WHERE EmployeeID = cteReports.MgrID) AS ManagerID
+            From cteReports
+            Order BY EmpLevel,MgrID
+
+Q8.
+for update:
+
+CREATE TRIGGER [dbo].[Customer_UPDATE]
+       ON [dbo].[Customers]
+AFTER UPDATE
+AS
+BEGIN
+       SET NOCOUNT ON;
+ 
+       DECLARE @CustomerId INT
+       DECLARE @Action VARCHAR(50)
+ 
+       SELECT @CustomerId = INSERTED.CustomerId       
+       FROM INSERTED
+ 
+       IF UPDATE(Name)
+       BEGIN
+              SET @Action = 'Updated Name'
+       END
+ 
+       IF UPDATE(Country)
+       BEGIN
+              SET @Action = 'Updated Country'
+       END
+ 
+       INSERT INTO CustomerLogs
+       VALUES(@CustomerId, @Action)
+END
+
+for delete:
+
+CREATE TRIGGER [dbo].[Customer_DELETE]
+       ON [dbo].[Customers]
+AFTER DELETE
+AS
+BEGIN
+       SET NOCOUNT ON;
+ 
+       DECLARE @CustomerId INT
+ 
+       SELECT @CustomerId = DELETED.CustomerId       
+       FROM DELETED
+ 
+       INSERT INTO CustomerLogs
+       VALUES(@CustomerId, 'Deleted')
+END
+
+
+
+
